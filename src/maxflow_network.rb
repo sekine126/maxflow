@@ -52,11 +52,10 @@ class MaxflowNetwork < Network
   # 仮想始点は-1、仮想終点は-2である。
   def get_community
     community = []
-    edges = get_community_edges(@start.id)
-    edges.each do |e|
-      if e.flow <= e.capacity
-        community << [e.from, e.to]
-      end
+    @route = []
+    get_community_edges(@start.id)
+    @route.each do |r|
+      community << [r.from, r.to]
     end
     return community
   end
@@ -151,24 +150,17 @@ class MaxflowNetwork < Network
   # from：仮想始点のノードID
   # 切り離したコミュニティのエッジ集合を返す。
   def get_community_edges(from)
-    edges = []
     @edges.each do |e|
       if e.from == from
         if e.flow < e.capacity
-          edges << e
-          results = get_community_edges(e.to)
-          if results != nil
-            results.each do |result|
-              edges << result
-            end
+          if @route.size != 0 && @route.include?(e)
+            next
           end
+          @route << e
+          get_community_edges(e.to)
         end
       end
     end
-    if edges.size == 0
-      return nil
-    end
-    edges
   end
 
 end

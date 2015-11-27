@@ -88,9 +88,9 @@ puts "pass."
 
 print "test5:get_community..."
 community = m.get_community
-d = [[-1, 1], [-1, 2], [2, 6], [6, 10], [6, 11], [-1, 3], [3, 6], [6, 10], [6, 11]]
+d = [[-1, 1], [-1, 2], [2, 6], [6, 10], [6, 11], [-1, 3], [3, 6]]
 if d != community
-  error
+  error 
 end
 community2 = m.get_community
 if community2 != community
