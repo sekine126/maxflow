@@ -5,6 +5,7 @@ class MaxflowNetwork < Network
   attr_reader :seeds
   attr_reader :start
   attr_reader :final
+  attr_reader :route
 
   # 初期化
   def initialize
@@ -12,6 +13,7 @@ class MaxflowNetwork < Network
     @seeds = []
     @start = nil
     @final = nil
+    @route = []
   end
 
   # シードを設定
@@ -98,17 +100,17 @@ class MaxflowNetwork < Network
   # 容量に空きがあるルートにフローを最大まで流す
   # フローを流したら１を返し、なければ０を返す
   def flow_free_route
-    route = find_free_route(@start.id)
-    if route == nil
-      return 0;
+    @route = []
+    if find_free_route(@start.id,[]) == 0
+      return 0
     end
     min = 9999
-    route.each do |r|
+    @route.each do |r|
       if min > r.capacity - r.flow
         min = r.capacity - r.flow
       end
     end
-    route.each do |r|
+    @route.each do |r|
       r.flow += min
     end
     return 1
@@ -118,22 +120,31 @@ class MaxflowNetwork < Network
   # from：接続元のノードID
   # 空きのあるルートが見つかれば、そのエッジ集合を返す
   # 空きのあるルートが見つからなければ、nilを返す
-  def find_free_route(from)
-    route = []
+  def find_free_route(from,route)
     if from == @final.id
-      return route
+      @route = route
+      return 1
     end
     @edges.each do |edge|
       if edge.from == from && edge.flow < edge.capacity
-        result = find_free_route(edge.to)
-        if result != nil
-          route = result
-          route << edge
-          return route
+        flag = 0
+        route.each do |r|
+          if edge.to == r.from
+            flag = 1
+          end
+        end
+        if flag == 1
+          next
+        end
+        route << edge
+        if find_free_route(edge.to, route) == 1
+          return 1
+        else
+          route.delete(edge)
         end
       end
     end
-    return nil
+    return 0
   end
 
   # Masflowアルゴリズムを適用したグラフからコミュニティを切り離す
