@@ -4,28 +4,24 @@ require './src/edge.rb'
 class Network
 
   attr_reader :nodes
-  attr_reader :edges
 
   # 初期化
   def initialize
     @nodes = []
-    @edges = []
   end
 
   # エッジを追加
-  # from : 接続元ノードのID
-  # to : 接続先ノードのID
+  # from_id : 接続元ノードのID
+  # to_id : 接続先ノードのID
   # flow：あればエッジに流れるフロー
   # capacity：あればエッジの容量
   # 追加したエッジを返す
   # エッジに対応するノードがなければ追加する
-  def connect(from, to, flow=nil, capacity=nil)
-    e = Edge.new(from, to, flow, capacity)
-    from_node = add_node(from)
+  def connect(from_id, to_id, flow=nil, capacity=nil)
+    e = Edge.new(from_id, to_id, flow, capacity)
+    from_node = add_node(from_id)
     from_node.out_edges << e
-    to_node = add_node(to)
-    to_node.in_edges << e
-    @edges << e
+    add_node(to_id)
     e
   end
 
@@ -47,6 +43,7 @@ class Network
   # 複数のノードを追加
   # ids：追加するノードのIDのリスト
   # 追加するノードがすでにある場合は追加せずに終了する。
+  # 追加したノード配列を返す。
   def add_nodes(ids)
     nodes = []
     ids.each do |id|

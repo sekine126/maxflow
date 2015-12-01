@@ -49,11 +49,6 @@ n.nodes.each do |node|
       error
     end
   end
-  if node.id == 2
-    if node.in_edges.size != 1
-      error
-    end
-  end
 end
 e = n.connect(2,1,3,4)
 if e.from != 2 && e.from != n.edges[1].from
@@ -67,9 +62,6 @@ if e.flow != 3 && e.flow != n.edges[1].flow
 end
 if e.capacity != 4 && e.capacity != n.edges[1].capacity
   error
-end
-if n.edges.size != 2
-  error "size"
 end
 if n.nodes.size != 2
   error "size"

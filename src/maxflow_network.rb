@@ -24,13 +24,13 @@ class MaxflowNetwork < Network
     reset_seeds
     list.each do |l|
       old_size = @seeds.size
-      @nodes.each do |n|
-        if n.id == l
-          @seeds.push(n)
+      @nodes.each do |node|
+        if node.id == l
+          @seeds.push(node)
         end
       end
       if @seeds.size == old_size
-        puts "error in set_seeds(list): node in list is not exist."
+        puts "ERROR in set_seeds(list): Node in list is not exist."
         puts "list is "
         p list
         exit(1)
@@ -54,7 +54,7 @@ class MaxflowNetwork < Network
   def get_community
     community = []
     @community = []
-    get_community_edges(@start.id)
+    get_community_edges(@start)
     @community.each do |c|
       community << [c.from, c.to]
     end
@@ -71,19 +71,21 @@ class MaxflowNetwork < Network
   # エッジの初期化
   # 仮想点を含まないエッジの容量をすべてシードの数にする。
   def init_edge
-    @edges.each do |e|
-      e.flow = 0
-      e.capacity = @seeds.size
+    @nodes.each do |node|
+      node.out_edges.each do |edge|
+        edge.flow = 0
+        edge.capacity = @seeds.size
+      end
     end
   end
 
   # 仮想始点を追加
-  # 仮想始点からシードへ容量無限(1000)のエッジを追加する。
+  # 仮想始点からシードへ容量無限(65536)のエッジを追加する。
   # 仮想始点のノードIDは-1。
   def set_start
     @start = add_node(-1)
-    @seeds.each do |s|
-      connect(@start.id, s.id, 0, 1000)
+    @seeds.each do |seed|
+      connect(@start.id, seed.id, 0, 65536)
     end
   end
 
@@ -92,8 +94,8 @@ class MaxflowNetwork < Network
   def set_final
     @final = add_node(-2)
     nodes = @nodes - @seeds - [@start, @final]
-    nodes.each do |n|
-      connect(n.id, @final.id, 0, 1)
+    nodes.each do |node|
+      connect(node.id, @final.id, 0, 1)
     end
   end
 
@@ -101,124 +103,78 @@ class MaxflowNetwork < Network
   # フローを流したら１を返し、なければ０を返す
   # 容量が満たされたエッジは削除する
   def flow_free_route
-    if find_free_route_to(@final.id,[]) == 0
+    @route = []
+    if get_free_route(@start,[]) == 0
       return 0
     end
-    min = 9999
     if @route.size == 0
-      puts "error in flow_free_route: @route is empty.."
+      puts "ERROR in flow_free_route: @route is empty!"
       exit(1)
     end
-    @route.each do |r|
-      if min > r.capacity - r.flow
-        min = r.capacity - r.flow
-      end
-    end
-    @route.each do |r|
-      r.flow += min
-      if r.capacity == r.flow
-        @edges.delete(r)
-        delete_route(r)
+    @route.each do |edge|
+      edge.flow += 1
+      if edge.capacity == edge.flow
+        @nodes.each do |node|
+          if node.id == edge.from
+            node.out_edges.delete(edge)
+          end
+        end
       end
     end
     return 1
   end
 
   # 容量に空きのあるルートを再帰的に探す
-  # from：接続元のノードID
+  # from：接続元のノード
   # 空きのあるルートが見つかれば、そのエッジ集合を返す
   # 空きのあるルートが見つからなければ、nilを返す
-  def find_free_route(from,route)
-    if from == @final.id
+  def get_free_route(from, route)
+    if from == @final
       @route = route
       return 1
     end
-    @edges.each do |edge|
-      if edge.from == from && edge.flow < edge.capacity
-        flag = 0
-        route.each do |r|
-          if edge.to == r.from
-            flag = 1
+    from.out_edges.each do |edge|
+      flag = 0
+      route.each do |r|
+        if edge.to == r.from
+          flag = 1
+        end
+      end
+      if flag == 1
+        next
+      end
+      route << edge
+      @nodes.each do |node|
+        if node.id == edge.to
+          if get_free_route(node, route) == 1
+            return 1
+          else
+            route.delete(edge)
           end
-        end
-        if flag == 1
-          next
-        end
-        route << edge
-        if find_free_route(edge.to, route) == 1
-          return 1
-        else
-          route.delete(edge)
         end
       end
     end
     return 0
   end
 
-  # Masflowアルゴリズムを適用したグラフからコミュニティを切り離す
-  # from：仮想始点のノードID
+  # Masflowアルゴリズムを適用したグラフからコミュニティを再帰的に切り離す
+  # from：接続元のノード
   # 切り離したコミュニティのエッジ集合を返す。
   def get_community_edges(from)
-    @edges.each do |e|
-      if e.from == from && e.flow < e.capacity
-        if @community.size != 0 && @community.include?(e)
-          next
-        end
-        @community << e
-        get_community_edges(e.to)
+    from.out_edges.each do |edge|
+      if edge.flow >= edge.capacity
+        puts "ERROR in get_community_edges: Not free edge in community."
       end
-    end
-  end
-
-  # @routeから引数で与えられたエッジとそこから終点までのエッジを削除する
-  def delete_route(edge)
-    @route.delete(edge)
-    @route.each do |r|
-      if r.from == edge.to
-        delete_route(r)
+      if @community.size != 0 && @community.include?(edge)
+        next
       end
-    end
-  end
-
-  # 容量に空きのあるルートを終点から再帰的に探す
-  # to：接続元のノードID
-  # 空きのあるルートが見つかれば、そのエッジ集合を返す
-  # 空きのあるルートが見つからなければ、nilを返す
-  def find_free_route_to(to,route)
-    edges = []
-    @edges.each do |edge|
-      if edge.to == to && edge.flow < edge.capacity
-        edges << edge
-        route.each do |r|
-          if edge.from == r.to
-            edges.delete(edge)
-          end
+      @community << edge
+      @nodes.each do |node|
+        if node.id == edge.to
+          get_community_edges(node)
         end
       end
     end
-    edges.each do |edge|
-      @seeds.each do |seed|
-        if edge.from == seed.id
-          route << edge
-          @edges.each do |e|
-            if e.from == @start.id && e.to == edge.from
-              route << e
-            end
-          end
-          @route = route
-          return 1
-        end
-      end
-    end
-    edges.each do |edge|
-      route << edge
-      if find_free_route_to(edge.from, route) == 1
-        return 1
-      else
-        route.delete(edge)
-      end
-    end
-    return 0
   end
 
 end
