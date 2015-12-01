@@ -194,6 +194,11 @@ class MaxflowNetwork < Network
     @edges.each do |edge|
       if edge.to == to && edge.flow < edge.capacity
         edges << edge
+        route.each do |r|
+          if edge.from == r.to
+            edges.delete(edge)
+          end
+        end
       end
     end
     edges.each do |edge|
