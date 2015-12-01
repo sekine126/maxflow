@@ -202,10 +202,11 @@ class MaxflowNetwork < Network
         if edge.from == seed.id
           route << edge
           @edges.each do |e|
-            if e.from == @start.id && e.to && edge.from
+            if e.from == @start.id && e.to == edge.from
               route << e
             end
           end
+          @route = route
           return 1
         end
       end
