@@ -23,15 +23,14 @@ class MaxflowNetwork < Network
   def set_seeds(list)
     reset_seeds
     list.each do |l|
-      exist = 0
+      old_size = @seeds.size
       @nodes.each do |n|
         if n.id == l
           @seeds.push(n)
-          exist = 1
         end
       end
-      if exist == 0
-        puts "error in setseeds(list): node in list is not exist."
+      if @seeds.size == old_size
+        puts "error in set_seeds(list): node in list is not exist."
         puts "list is "
         p list
         exit(1)
