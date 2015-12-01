@@ -16,23 +16,22 @@ class MaxflowNetwork < Network
     @final = nil
     @route = []
     @community = []
+    @used = Hash.new(0)
   end
 
   # シードを設定
-  # seeds：設定するノードのIDリスト
+  # seeds：設定するノードの名前リスト
   def set_seeds(list)
     reset_seeds
-    list.each do |l|
+    list.each do |data|
       old_size = @seeds.size
       @nodes.each do |node|
-        if node.id == l
-          @seeds.push(node)
+        if node.data == data
+          @seeds << node
         end
       end
       if @seeds.size == old_size
-        puts "ERROR in set_seeds(list): Node in list is not exist."
-        puts "list is "
-        p list
+        puts "ERROR in set_seeds(ids): Node id=#{id} is not exist."
         exit(1)
       end
     end
@@ -56,9 +55,13 @@ class MaxflowNetwork < Network
     @community = []
     get_community_edges(@start)
     @community.each do |c|
-      community << [c.from, c.to]
+      community << [@nodes[c.from].data, @nodes[c.to].data]
     end
     return community
+  end
+
+  def used(edge)
+    @used[edge]
   end
 
   private
@@ -73,7 +76,9 @@ class MaxflowNetwork < Network
   def init_edge
     @nodes.each do |node|
       node.out_edges.each do |edge|
-        edge.flow = 0
+        edge.capacity = @seeds.size
+      end
+      node.in_edges.each do |edge|
         edge.capacity = @seeds.size
       end
     end
@@ -81,11 +86,11 @@ class MaxflowNetwork < Network
 
   # 仮想始点を追加
   # 仮想始点からシードへ容量無限(65536)のエッジを追加する。
-  # 仮想始点のノードIDは-1。
+  # 仮想始点のノード名は-1。
   def set_start
     @start = add_node(-1)
     @seeds.each do |seed|
-      connect(@start.id, seed.id, 0, 65536)
+      connect(@start.data, seed.data, 65536)
     end
   end
 
@@ -95,7 +100,7 @@ class MaxflowNetwork < Network
     @final = add_node(-2)
     nodes = @nodes - @seeds - [@start, @final]
     nodes.each do |node|
-      connect(node.id, @final.id, 0, 1)
+      connect(node.data, @final.data, 1)
     end
   end
 
@@ -112,14 +117,7 @@ class MaxflowNetwork < Network
       exit(1)
     end
     @route.each do |edge|
-      edge.flow += 1
-      if edge.capacity == edge.flow
-        @nodes.each do |node|
-          if node.id == edge.from
-            node.out_edges.delete(edge)
-          end
-        end
-      end
+      @used[edge] += 1
     end
     return 1
   end
@@ -134,23 +132,21 @@ class MaxflowNetwork < Network
       return 1
     end
     from.out_edges.each do |edge|
-      flag = 0
-      route.each do |r|
-        if edge.to == r.from
-          flag = 1
-        end
-      end
-      if flag == 1
-        next
-      end
-      route << edge
-      @nodes.each do |node|
-        if node.id == edge.to
-          if get_free_route(node, route) == 1
-            return 1
-          else
-            route.delete(edge)
+      if @used[edge] < edge.capacity
+        flag = 0
+        route.each do |r|
+          if edge.to == r.from
+            flag = 1
           end
+        end
+        if flag == 1
+          next
+        end
+        route << edge
+        if get_free_route(@nodes[edge.to], route) == 1
+          return 1
+        else
+          route.delete(edge)
         end
       end
     end
@@ -162,17 +158,12 @@ class MaxflowNetwork < Network
   # 切り離したコミュニティのエッジ集合を返す。
   def get_community_edges(from)
     from.out_edges.each do |edge|
-      if edge.flow >= edge.capacity
-        puts "ERROR in get_community_edges: Not free edge in community."
-      end
-      if @community.size != 0 && @community.include?(edge)
-        next
-      end
-      @community << edge
-      @nodes.each do |node|
-        if node.id == edge.to
-          get_community_edges(node)
+      if @used[edge] < edge.capacity
+        if @community.size != 0 && @community.include?(edge)
+          next
         end
+        @community << edge
+        get_community_edges(@nodes[edge.to])
       end
     end
   end

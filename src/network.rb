@@ -4,50 +4,63 @@ require './src/edge.rb'
 class Network
 
   attr_reader :nodes
+  attr_reader :edges
 
   # 初期化
   def initialize
+    @serial = 0
     @nodes = []
+    @edges = []
   end
 
   # エッジを追加
-  # from_id : 接続元ノードのID
-  # to_id : 接続先ノードのID
-  # flow：あればエッジに流れるフロー
+  # from : 接続元ノードの名前
+  # to : 接続先ノードの名前
   # capacity：あればエッジの容量
-  # 追加したエッジを返す
   # エッジに対応するノードがなければ追加する
-  def connect(from_id, to_id, flow=nil, capacity=nil)
-    e = Edge.new(from_id, to_id, flow, capacity)
-    from_node = add_node(from_id)
-    from_node.out_edges << e
-    add_node(to_id)
-    e
+  # 追加したエッジを返す
+  def connect(from_name, to_name, capacity=nil)
+    from = check_node(from_name)
+    to = check_node(to_name)
+    edge = Edge.new(from, to, capacity)
+    @nodes[from].out_edges << edge
+    @nodes[to].in_edges << edge
+    @edges << edge
+    return edge
+  end
+
+  # ノードがあるかチェック
+  # data：チェックするノードの名前
+  # ノードが存在すればそのIDを返す。
+  # ノードが存在しなければ新たに作成してIDを返す。
+  def check_node(data)
+    @nodes.each do |node|
+      if node.data == data
+        return node.id
+      end
+    end
+    node = add_node(data)
+    return node.id
   end
 
   # ノードを追加
-  # id：追加するノードのID
+  # data：追加するノードの名前
   # 追加するノードがすでにある場合は追加せずに終了する。
   # 追加したノードを返す。
-  def add_node(id)
-    @nodes.each do |node|
-      if node.id == id
-        return node
-      end
-    end
-    n = Node.new(id)
-    @nodes << n
-    n
+  def add_node(data)
+    id = @serial
+    @serial += 1
+    @nodes[id] = Node.new(id, data)
   end
 
   # 複数のノードを追加
-  # ids：追加するノードのIDのリスト
+  # list：追加するノードの名前リスト
   # 追加するノードがすでにある場合は追加せずに終了する。
   # 追加したノード配列を返す。
-  def add_nodes(ids)
+  def add_nodes(list)
     nodes = []
-    ids.each do |id|
-      nodes << add_node(id)
+    list.each do |l|
+      nodes << add_node(l)
     end
     nodes
   end

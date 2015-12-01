@@ -2,24 +2,21 @@ class Edge
 
   attr_reader :to
   attr_reader :from
-  attr_accessor :flow
   attr_accessor :capacity
 
   # 初期化
-  # from：接続元ノードのID
   # to：接続先ノードのID
+  # from：接続元ノードのID
   # capacity：あればエッジの容量
-  # flow：あればエッジに流れるフロー
-  def initialize(from, to, flow=nil, capacity=nil)
+  def initialize(from, to, capacity=nil)
     @from = from
     @to = to
-    @flow = flow
     @capacity = capacity
   end
 
   # 表示用
   def inspect
-    return "#{from} -> #{to} : #{flow} / #{capacity}"
+    return "#{from} -> #{to} : #{capacity}"
   end
 
 end
