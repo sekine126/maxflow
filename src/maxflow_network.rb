@@ -6,6 +6,7 @@ class MaxflowNetwork < Network
   attr_reader :start
   attr_reader :final
   attr_reader :route
+  attr_reader :community
 
   # 初期化
   def initialize
@@ -14,6 +15,7 @@ class MaxflowNetwork < Network
     @start = nil
     @final = nil
     @route = []
+    @community = []
   end
 
   # シードを設定
@@ -52,10 +54,10 @@ class MaxflowNetwork < Network
   # 仮想始点は-1、仮想終点は-2である。
   def get_community
     community = []
-    @route = []
+    @community = []
     get_community_edges(@start.id)
-    @route.each do |r|
-      community << [r.from, r.to]
+    @community.each do |c|
+      community << [c.from, c.to]
     end
     return community
   end
@@ -104,6 +106,10 @@ class MaxflowNetwork < Network
       return 0
     end
     min = 9999
+    if @route.size == 0
+      puts "error in flow_free_route: @route is empty.."
+      exit(1)
+    end
     @route.each do |r|
       if min > r.capacity - r.flow
         min = r.capacity - r.flow
@@ -151,14 +157,12 @@ class MaxflowNetwork < Network
   # 切り離したコミュニティのエッジ集合を返す。
   def get_community_edges(from)
     @edges.each do |e|
-      if e.from == from
-        if e.flow < e.capacity
-          if @route.size != 0 && @route.include?(e)
-            next
-          end
-          @route << e
-          get_community_edges(e.to)
+      if e.from == from && e.flow < e.capacity
+        if @community.size != 0 && @community.include?(e)
+          next
         end
+        @community << e
+        get_community_edges(e.to)
       end
     end
   end
