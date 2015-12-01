@@ -30,7 +30,6 @@ puts "pass."
 
 print "test3:connect..."
 n = Network.new
-n.add_nodes([1,2,3,4])
 e = n.connect(1,2)
 if e.from != 1 && e.from != n.edges[0].from
   error
@@ -70,6 +69,9 @@ if e.capacity != 4 && e.capacity != n.edges[1].capacity
   error
 end
 if n.edges.size != 2
+  error "size"
+end
+if n.nodes.size != 2
   error "size"
 end
 puts "pass."

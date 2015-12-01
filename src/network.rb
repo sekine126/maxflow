@@ -18,24 +18,14 @@ class Network
   # flow：あればエッジに流れるフロー
   # capacity：あればエッジの容量
   # 追加したエッジを返す
+  # エッジに対応するノードがなければ追加する
   def connect(from, to, flow=nil, capacity=nil)
     e = Edge.new(from, to, flow, capacity)
-    flag = 0
-    @nodes.each do |node|
-      if node.id == from
-        node.out_edges << e
-        flag += 1
-      end
-      if node.id == to
-        node.in_edges << e
-        flag += 1
-      end
-    end
+    from_node = add_node(from)
+    from_node.out_edges << e
+    to_node = add_node(to)
+    to_node.in_edges << e
     @edges << e
-    if flag != 2
-      puts "ERROR: from or to node is not found in connect."
-      exit(1)
-    end
     e
   end
 
