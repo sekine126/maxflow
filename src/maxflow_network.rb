@@ -100,8 +100,8 @@ class MaxflowNetwork < Network
 
   # 容量に空きがあるルートにフローを最大まで流す
   # フローを流したら１を返し、なければ０を返す
+  # 容量が満たされたエッジは削除する
   def flow_free_route
-    @route = []
     if find_free_route(@start.id,[]) == 0
       return 0
     end
@@ -117,6 +117,10 @@ class MaxflowNetwork < Network
     end
     @route.each do |r|
       r.flow += min
+      if r.capacity == r.flow
+        @edges.delete(r)
+        delete_route(r)
+      end
     end
     return 1
   end
@@ -163,6 +167,16 @@ class MaxflowNetwork < Network
         end
         @community << e
         get_community_edges(e.to)
+      end
+    end
+  end
+
+  # @routeから引数で与えられたエッジとそこから終点までのエッジを削除する
+  def delete_route(edge)
+    @route.delete(edge)
+    @route.each do |r|
+      if r.from == edge.to
+        delete_route(r)
       end
     end
   end
