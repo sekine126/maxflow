@@ -20,7 +20,22 @@ class Network
   # 追加したエッジを返す
   def connect(from, to, flow=nil, capacity=nil)
     e = Edge.new(from, to, flow, capacity)
+    flag = 0
+    @nodes.each do |node|
+      if node.id == from
+        node.out_edges << e
+        flag += 1
+      end
+      if node.id == to
+        node.in_edges << e
+        flag += 1
+      end
+    end
     @edges << e
+    if flag != 2
+      puts "ERROR: from or to node is not found in connect."
+      exit(1)
+    end
     e
   end
 
