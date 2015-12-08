@@ -127,10 +127,7 @@ class MaxflowNetwork < Network
   # 空きのあるルートが見つかれば、そのエッジ集合を返す
   # 空きのあるルートが見つからなければ、nilを返す
   def get_free_route(to, route)
-    if to == @start
-      @route = route
-      return 1
-    end
+    free_edges = []
     to.in_edges.each do |edge|
       if @used[edge] < edge.capacity
         flag = 0
@@ -142,12 +139,27 @@ class MaxflowNetwork < Network
         if flag == 1
           next
         end
+        free_edges << edge
+      end
+    end
+    free_edges.each do |edge|
+      if @seeds.include?(@nodes[edge.from])
         route << edge
-        if get_free_route(@nodes[edge.from], route) == 1
-          return 1
-        else
-          route.delete(edge)
+        @nodes[edge.from].in_edges.each do |e|
+          if e.from == @start.id
+            route << edge
+            return 1
+          end
         end
+        free_edges.delete(edge)
+      end
+    end
+    free_edges.each do |edge|
+      route << edge
+      if get_free_route(@nodes[edge.from], route) == 1
+        return 1
+      else
+        route.delete(edge)
       end
     end
     return 0
