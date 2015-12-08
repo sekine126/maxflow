@@ -109,7 +109,7 @@ class MaxflowNetwork < Network
   # 容量が満たされたエッジは削除する
   def flow_free_route
     @route = []
-    if get_free_route(@start,[]) == 0
+    if get_free_route(@final,[]) == 0
       return 0
     end
     if @route.size == 0
@@ -126,16 +126,16 @@ class MaxflowNetwork < Network
   # from：接続元のノード
   # 空きのあるルートが見つかれば、そのエッジ集合を返す
   # 空きのあるルートが見つからなければ、nilを返す
-  def get_free_route(from, route)
-    if from == @final
+  def get_free_route(to, route)
+    if to == @start
       @route = route
       return 1
     end
-    from.out_edges.each do |edge|
+    to.in_edges.each do |edge|
       if @used[edge] < edge.capacity
         flag = 0
         route.each do |r|
-          if edge.to == r.from
+          if edge.from == r.to
             flag = 1
           end
         end
@@ -143,7 +143,7 @@ class MaxflowNetwork < Network
           next
         end
         route << edge
-        if get_free_route(@nodes[edge.to], route) == 1
+        if get_free_route(@nodes[edge.from], route) == 1
           return 1
         else
           route.delete(edge)
