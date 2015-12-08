@@ -148,6 +148,7 @@ class MaxflowNetwork < Network
         @nodes[edge.from].in_edges.each do |e|
           if e.from == @start.id
             route << edge
+            @route = route
             return 1
           end
         end
