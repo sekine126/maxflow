@@ -111,13 +111,14 @@ class MaxflowNetwork < Network
   def flow_free_route
     @route = []
     flag = 0
-    @depth = 4
     while flag == 0
       if @depth > 40
         return 0
       end
       flag = get_free_route(@final,[])
-      @depth += 1
+      if flag == 0
+        @depth += 1
+      end
     end
     if @route.size == 0
       puts "ERROR in flow_free_route: @route is empty!"
