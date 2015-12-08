@@ -15,6 +15,7 @@ class MaxflowNetwork < Network
     @start = nil
     @final = nil
     @route = []
+    @depth = 0
     @community = []
     @used = Hash.new(0)
   end
@@ -109,8 +110,14 @@ class MaxflowNetwork < Network
   # 容量が満たされたエッジは削除する
   def flow_free_route
     @route = []
-    if get_free_route(@final,[]) == 0
-      return 0
+    flag = 0
+    @depth = 4
+    while flag == 0
+      if @depth > 40
+        return 0
+      end
+      flag = get_free_route(@final,[])
+      @depth += 1
     end
     if @route.size == 0
       puts "ERROR in flow_free_route: @route is empty!"
@@ -127,6 +134,9 @@ class MaxflowNetwork < Network
   # 空きのあるルートが見つかれば、そのエッジ集合を返す
   # 空きのあるルートが見つからなければ、nilを返す
   def get_free_route(to, route)
+    if route.size > @depth
+      return 0
+    end
     free_edges = []
     to.in_edges.each do |edge|
       if @used[edge] < edge.capacity
