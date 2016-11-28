@@ -1,6 +1,5 @@
-require './src/maxflow_network.rb'
+require './src/maxflow_network/maxflow_network.rb'
 require 'mysql2'
-require 'pp'
 
 params = ARGV.getopts('d:f:t:')
 if params["d"] == nil
@@ -188,7 +187,6 @@ end
 com_nodes.uniq!
 
 # 結果を画面表示
-#pp community
 puts "Total #{num_nodes}node."
 puts "Total #{updated_links.size} links"
 puts "Get community total #{com_nodes.size}nodes."

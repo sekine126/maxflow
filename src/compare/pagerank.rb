@@ -1,4 +1,3 @@
-require 'pp'
 
 params = ARGV.getopts('d:f:t:')
 if params["d"] == nil

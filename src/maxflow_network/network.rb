@@ -1,6 +1,5 @@
-require './src/node.rb'
-require './src/edge.rb'
-require 'pp'
+require './src/maxflow_network/node.rb'
+require './src/maxflow_network/edge.rb'
 
 class Network
 

@@ -1,6 +1,5 @@
-require './src/maxflow_network.rb'
+require './src/maxflow_network/maxflow_network.rb'
 require 'mysql2'
-require 'pp'
 
 params = ARGV.getopts('d:f:t:')
 if params["d"] == nil

@@ -1,5 +1,4 @@
-require './src/network.rb'
-require 'pp'
+require './src/maxflow_network/network.rb'
 
 class MaxflowNetwork < Network
 

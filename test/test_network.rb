@@ -1,4 +1,4 @@
-require './src/network.rb'
+require './src/maxflow_network/network.rb'
 require './test/error.rb'
 
 print "test:connect..."

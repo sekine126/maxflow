@@ -1,4 +1,4 @@
-require './src/node.rb'
+require './src/maxflow_network/node.rb'
 require './test/error.rb'
 
 print "test1:initialize..."

@@ -1,4 +1,4 @@
-require './src/edge.rb'
+require './src/maxflow_network/edge.rb'
 require './test/error.rb'
 
 print "test1:initialize..."
