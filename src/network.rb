@@ -1,5 +1,6 @@
 require './src/node.rb'
 require './src/edge.rb'
+require 'pp'
 
 class Network
 
@@ -11,6 +12,10 @@ class Network
     @serial = 0
     @nodes = []
     @edges = []
+    @node_hash = Hash.new()
+    @edge_hash = Hash.new()
+    @inedge_hash = Hash.new()
+    @outedge_hash = Hash.new()
   end
 
   # エッジを追加
@@ -23,9 +28,18 @@ class Network
     from = check_node(from_name)
     to = check_node(to_name)
     edge = Edge.new(from, to, capacity)
-    @nodes[from].out_edges << edge
-    @nodes[to].in_edges << edge
-    @edges << edge
+    if @outedge_hash[[from,edge]] == nil
+      @nodes[from].out_edges << edge
+      @outedge_hash[[from, edge]] = 1
+    end
+    if @inedge_hash[[to, edge]] == nil
+      @nodes[to].in_edges << edge
+      @inedge_hash[[to,edge]] = 1
+    end
+    if @edge_hash[edge] == nil
+      @edges << edge
+      @edge_hash[edge] = 1
+    end
     return edge
   end
 
@@ -34,18 +48,15 @@ class Network
   # ノードが存在すればそのIDを返す。
   # ノードが存在しなければ新たに作成してIDを返す。
   def check_node(data)
-    @nodes.each do |node|
-      if node.data == data
-        return node.id
-      end
+    if @node_hash[data] == nil
+      node = add_node(data)
+      @node_hash[data] = node.id
     end
-    node = add_node(data)
-    return node.id
+    return @node_hash[data]
   end
 
   # ノードを追加
   # data：追加するノードの名前
-  # 追加するノードがすでにある場合は追加せずに終了する。
   # 追加したノードを返す。
   def add_node(data)
     id = @serial
@@ -60,9 +71,14 @@ class Network
   def add_nodes(list)
     nodes = []
     list.each do |l|
-      nodes << add_node(l)
+      nodes << check_node(l)
     end
     nodes
+  end
+
+  # ノードの表示
+  def show_nodes()
+    pp @nodes
   end
 
   # 表示用

@@ -19,4 +19,9 @@ class Edge
     return "#{from} -> #{to} : #{capacity}"
   end
 
+  # 比較用
+  def ==(other)
+      return self.from == other.from && self.to == other.to && self.capacity == other.capacity
+  end
+
 end

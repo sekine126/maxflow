@@ -4,6 +4,7 @@ class Node
   attr_reader :data
   attr_reader :in_edges
   attr_reader :out_edges
+  attr_reader :depth
 
   # 初期化
   # id：ノードのID
@@ -12,6 +13,13 @@ class Node
     @data = data
     @in_edges = []
     @out_edges = []
+    @depth = nil
+  end
+
+  # 深さを設定
+  # depth: 深さ
+  def set_depth(depth)
+    @depth = depth
   end
 
   # 表示用

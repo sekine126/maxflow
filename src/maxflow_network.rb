@@ -1,4 +1,5 @@
 require './src/network.rb'
+require 'pp'
 
 class MaxflowNetwork < Network
 
@@ -17,6 +18,8 @@ class MaxflowNetwork < Network
     @route = []
     @community = []
     @used = Hash.new(0)
+    @deadlock_nodes = Hash.new()
+    @size = 0
   end
 
   # シードを設定
@@ -31,7 +34,7 @@ class MaxflowNetwork < Network
         end
       end
       if @seeds.size == old_size
-        puts "ERROR in set_seeds(ids): Node id=#{id} is not exist."
+        puts "ERROR in set_seeds(ids): not exist."
         exit(1)
       end
     end
@@ -43,8 +46,14 @@ class MaxflowNetwork < Network
     init_edge
     set_start
     set_final
+    set_depth
+    num = 0
+    print "\rflow start: #{num} route."
     while flow_free_route == 1
+      num += 1
+      print "\rflow start: #{num} route."
     end
+    puts ""
   end
 
   # Maxflowアルゴリズムで得られたコミュニティを返す
@@ -53,7 +62,9 @@ class MaxflowNetwork < Network
   def get_community
     community = []
     @community = []
+    @deadlock_nodes = Hash.new()
     get_community_edges(@start)
+    puts ""
     @community.each do |c|
       community << [@nodes[c.from].data, @nodes[c.to].data]
     end
@@ -88,7 +99,7 @@ class MaxflowNetwork < Network
   # 仮想始点からシードへ容量無限(65536)のエッジを追加する。
   # 仮想始点のノード名は-1。
   def set_start
-    @start = add_node(-1)
+    @start = @nodes[check_node(-1)]
     @seeds.each do |seed|
       connect(@start.data, seed.data, 65536)
     end
@@ -97,11 +108,13 @@ class MaxflowNetwork < Network
   # 仮想終点を追加
   # シードページと仮想始点以外のノードから辺容量１のエッジを追加する。
   def set_final
-    @final = add_node(-2)
+    @final = @nodes[check_node(-2)]
     nodes = @nodes - @seeds - [@start, @final]
-    nodes.each do |node|
+    nodes.each_with_index do |node, i|
+      print "\rset final start: #{i+1}/#{nodes.size}"
       connect(node.data, @final.data, 1)
     end
+    puts ""
   end
 
   # 容量に空きがあるルートにフローを最大まで流す
@@ -132,17 +145,10 @@ class MaxflowNetwork < Network
       return 1
     end
     from.out_edges.each do |edge|
-      if @used[edge] < edge.capacity
-        flag = 0
-        route.each do |r|
-          if edge.to == r.from
-            flag = 1
-          end
-        end
-        if flag == 1
-          next
-        end
+      if @deadlock_nodes[@nodes[edge.to]] == nil && @used[edge] < edge.capacity
+        next if route.any?{|r| edge.to == r.from}
         route << edge
+        # 追加 
         if get_free_route(@nodes[edge.to], route) == 1
           return 1
         else
@@ -150,25 +156,52 @@ class MaxflowNetwork < Network
         end
       end
     end
+    @deadlock_nodes[from] = 1
     return 0
   end
 
-  # Masflowアルゴリズムを適用したグラフからコミュニティを再帰的に切り離す
+  # Maxflowアルゴリズムを適用したグラフからコミュニティを再帰的に切り離す
   # from：接続元のノード
   # 切り離したコミュニティのエッジ集合を返す。
   def get_community_edges(from)
+    @deadlock_nodes[from] = 1
     from.out_edges.each do |edge|
-      if @used[edge] < edge.capacity
-        if @community.size != 0 && @community.include?(edge)
-          next
-        end
+      if !@community.include?(edge) && @used[edge] < edge.capacity
         @community << edge
-        get_community_edges(@nodes[edge.to])
+        if @deadlock_nodes[@nodes[edge.to]] == nil
+          get_community_edges(@nodes[edge.to])
+          @size += 1
+          print "\rnodes #{@size}"
+        end
+      end
+    end
+  end
+
+  # 深度を設定する関数
+  # startノードは0
+  # finalノードは4
+  def set_depth
+    @seeds.each do |seed|
+      seed.set_depth(1)
+      seed.out_edges.each do |edge|
+        @nodes[edge.to].set_depth(2)
+      end
+    end
+    @nodes.each do |node|
+      if node == @start
+        node.set_depth(0)
+        next
+      end
+      if node == @final
+        node.set_depth(4)
+        next
+      end
+      if node.depth == nil
+        node.set_depth(3)
       end
     end
   end
 
 end
-
 
 
