@@ -86,7 +86,7 @@ nodes2.each do |node2|
 end
 puts "Plus #{plus_nodes.size} nodes."
 puts "Minus #{minus_nodes.size} nodes."
-puts "Continue #{continue_nodes.size}/#{nodes1.size} nodes."
+puts "Continue #{continue_nodes.size}/#{nodes1.size}=#{(continue_nodes.size.to_f/nodes1.size.to_f*100).round(1)} nodes."
 
 # 初期コミュニティからリンク数がどれだけ変化したか表示
 plus_links = []
@@ -106,5 +106,5 @@ links2.each do |link2|
 end
 puts "Plus #{plus_links.size} links."
 puts "Minus #{minus_links.size} links."
-puts "Continue #{continue_links.size}/#{links1.size} links."
+puts "Continue #{continue_links.size}/#{links1.size}=#{(continue_links.size.to_f/links1.size.to_f*100).round(1)} links."
 

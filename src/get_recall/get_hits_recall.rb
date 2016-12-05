@@ -106,9 +106,9 @@ links1.each do |link1|
     recall_of_link += 1
   end
 end
-puts "Community Node Recall #{recall_of_node.size} nodes."
+puts "Community Node Recall #{recall_of_node} nodes."
 puts "Community Node Recall #{(recall_of_node/nodes1.size.to_f*100).round(2)} %"
-puts "Community Link Recall #{recall_of_node.size} nodes."
+puts "Community Link Recall #{recall_of_link} links."
 puts "Community Link Recall #{(recall_of_link/links1.size.to_f*100).round(2)} %"
 
 # 再現率を表示
