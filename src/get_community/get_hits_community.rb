@@ -187,7 +187,7 @@ com_nodes.uniq!
 
 # 結果を画面表示
 #pp community
-puts "Total #{num_nodes}node."
+puts "Total #{num_nodes} node."
 puts "Total #{updated_links.size} links"
 puts "Get community total #{com_nodes.size}nodes."
 puts "Get community total #{community.size}links."
