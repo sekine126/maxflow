@@ -1,3 +1,5 @@
+# 初期コミュニティと指定した日付のフルクロール時のコミュニティを比較して
+# どれだけ変化しているかを表示するプログラム
 
 params = ARGV.getopts('d:f:t:')
 if params["d"] == nil
@@ -25,78 +27,84 @@ end
 db_name = params["d"]
 date1 = params["f"]
 date2 = params["t"]
-nodes = []
 nodes1 = []
 nodes2 = []
-links = []
 links1 = []
 links2 = []
-link_filename = "./data/#{db_name}_crawl_#{date1}.txt"
-link1_filename = "./data/#{db_name}_crawl_#{date2}.txt"
-link2_filename = "./update/#{db_name}_#{date1}_#{date2}.txt"
-# 初期コミュニティデータ
-open(link_filename) {|file|
-  while l = file.gets
-    links << l.chomp
-    nodes << l.split(",")[0].to_i
-    nodes << l.split(",")[1].to_i
-  end
-}
-nodes.uniq!
+nodes1_hash = Hash.new()
+nodes2_hash = Hash.new()
+links1_hash = Hash.new()
+links2_hash = Hash.new()
+link1_filename = "./data/crawl/#{db_name}_crawl_#{date1}.txt"
+link2_filename = "./data/crawl/#{db_name}_crawl_#{date2}.txt"
 
-# 指定した日付のフルクロールで取得したコミュニティデータ
+# 初期コミュニティデータ
 open(link1_filename) {|file|
   while l = file.gets
     links1 << l.chomp
     nodes1 << l.split(",")[0].to_i
     nodes1 << l.split(",")[1].to_i
+    links1_hash[l.chomp] = 1
+    nodes1_hash[l.split(",")[0].to_i] = 1
+    nodes1_hash[l.split(",")[1].to_i] = 1
   end
 }
 nodes1.uniq!
 
-# 指定した日付の局所クロールで更新したコミュニティデータ
+# 指定した日付のフルクロールで取得したコミュニティデータ
 open(link2_filename) {|file|
   while l = file.gets
     links2 << l.chomp
     nodes2 << l.split(",")[0].to_i
     nodes2 << l.split(",")[1].to_i
+    links2_hash[l.chomp] = 1
+    nodes2_hash[l.split(",")[0].to_i] = 1
+    nodes2_hash[l.split(",")[1].to_i] = 1
   end
 }
 nodes2.uniq!
 
 # それぞれのコミュニティのノード、リンク数を出力
-puts "community: #{nodes.size} nodes, #{links.size} links."
 puts "community1: #{nodes1.size} nodes, #{links1.size} links."
 puts "community2: #{nodes2.size} nodes, #{links2.size} links."
 
-# 初期コミュニティから新しく追加されたページを抽出
-new_nodes1 = []
-new_nodes2 = []
+# 初期コミュニティからノード数がどれだけ変化したか表示
+plus_nodes = []
+minus_nodes = []
+continue_nodes = []
 nodes1.each do |node1|
-  if !(nodes.include?(node1))
-    new_nodes1 << node1
+  if nodes2_hash[node1] == 1
+    continue_nodes << node1
+  else
+    minus_nodes << node1
   end
 end
 nodes2.each do |node2|
-  if !(nodes.include?(node2))
-    new_nodes2 << node2
+  if nodes1_hash[node2] == nil
+    plus_nodes << node2
   end
 end
+puts "Plus #{plus_nodes.size} nodes."
+puts "Minus #{minus_nodes.size} nodes."
+puts "Continue #{continue_nodes.size}/#{nodes1.size} nodes."
 
-# 再現率を表示
-recall_nodes = []
-add_nodes = []
-new_nodes2.each do |nnode2|
-  if new_nodes1.include?(nnode2)
-    recall_nodes << nnode2
+# 初期コミュニティからリンク数がどれだけ変化したか表示
+plus_links = []
+minus_links = []
+continue_links = []
+links1.each do |link1|
+  if links2_hash[link1] == 1
+    continue_links << link1
   else
-    add_nodes << nnode2
+    minus_links << link1
   end
 end
-puts "Recall #{recall_nodes.size} nodes."
-puts "Recall #{(recall_nodes.size/new_nodes1.size.to_f*100).round(2)} %"
-puts "Additional #{add_nodes.size} nodes."
-puts "Additional #{(new_nodes2.size.to_f/new_nodes1.size.to_f*100).round(2)} %."
-p new_nodes1.size
-p new_nodes2.size
+links2.each do |link2|
+  if links1_hash[link2] == nil
+    plus_links << link2
+  end
+end
+puts "Plus #{plus_links.size} links."
+puts "Minus #{minus_links.size} links."
+puts "Continue #{continue_links.size}/#{links1.size} links."
 

@@ -83,7 +83,7 @@ nodes2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
-# ハブ値が0以外ページの内上位8割のページを加える
+# ハブ値が0以外のページを加える
 hits_filename = "./data/hits/hits_#{params["d"]}_#{params["f"]}.txt"
 ids = []
 first_nodes.delete("-1")
@@ -97,7 +97,6 @@ open(hits_filename) {|file|
     end
   end
 }
-ids = ids[0..((ids.size*0.8) - 1).ceil]
 ids_filename = "./data/matrix/ids_#{params["d"]}_#{params["f"]}.txt"
 open(ids_filename) {|file|
   while l = file.gets
