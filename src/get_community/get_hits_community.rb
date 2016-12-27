@@ -54,10 +54,10 @@ db_name = "#{params["d"]}_crawl"
 client = Mysql2::Client.new(:host => 'localhost', :username => 'root', :password => 'root', :database => db_name)
 
 # リンクリストをDBから取得
-links1 = []
 nodes1 = []
-links2 = []
 nodes2 = []
+links1 = []
+links2 = []
 num = 0
 seeds.each do |seed|
   num += 1
@@ -65,21 +65,23 @@ seeds.each do |seed|
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["f"]}"
   results = client.query(query)
   results.each do |row|
-    links1.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes1 << row["from_url_crc"]
-    nodes1 << row["to_url_crc"]
+    links1.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes1 << row["from_url_crc"].to_i
+    nodes1 << row["to_url_crc"].to_i
   end
   # 更新する対象のある日時のデータを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["t"]}"
   results = client.query(query)
   results.each do |row|
-    links2.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes2 << row["from_url_crc"]
-    nodes2 << row["to_url_crc"]
+    links2.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes2 << row["from_url_crc"].to_i
+    nodes2 << row["to_url_crc"].to_i
   end
 end
 nodes1.uniq!
 nodes2.uniq!
+links1.uniq!
+links2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
@@ -108,6 +110,7 @@ open(ids_filename) {|file|
 }
 # 重複を削除
 update_pages.uniq!
+
 # シードページのリンク先で初期データにない新しいページを加える
 update_pages.each do |upage|
   # 更新対象のページがシードページの場合

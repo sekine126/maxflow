@@ -53,7 +53,7 @@ seeds.each do |seed|
   results = client.query(query)
   count = 0
   results.each do |row|
-    links.push([row["from_url_crc"], row["to_url_crc"]])
+    links.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
     count += 1
   end
   link_nums << count

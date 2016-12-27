@@ -34,7 +34,7 @@ nodes2_hash = Hash.new()
 links1_hash = Hash.new()
 links2_hash = Hash.new()
 link1_filename = "./data/crawl/#{db_name}_crawl_#{date1}.txt"
-link2_filename = "./data/update/hits_#{db_name}_#{date1}_#{date2}.txt"
+link2_filename = "./data/update/bet_#{db_name}_#{date1}_#{date2}.txt"
 
 # 初期コミュニティデータ
 open(link1_filename) {|file|
@@ -77,8 +77,8 @@ new_nodes.uniq!
 puts "nodes1 = #{nodes1.size}, nodes2 = #{nodes2.size}, new node = #{new_nodes.size}"
 
 # ハブスコアランキングファイルから新しく追加されたページだけを抽出
-hits_filename = "./data/hits/hits_#{params["d"]}_#{params["t"]}.txt"
-ids_filename = "./data/matrix/hits_ids_#{params["d"]}_#{params["t"]}.txt"
+bet_filename = "./data/R/bet_#{params["d"]}_#{params["t"]}.txt"
+ids_filename = "./data/matrix/bet_ids_#{params["d"]}_#{params["t"]}.txt"
 new_page_rank = []
 hashs = Hash.new()
 open(ids_filename) {|file|
@@ -87,24 +87,27 @@ open(ids_filename) {|file|
     hashs[l.split(",")[0].to_i] = l.split(",")[1].to_i
   end
 }
-open(hits_filename) {|file|
+scores = []
+open(bet_filename) {|file|
   while l = file.gets
-    next if l[0] == "#"
     l.chomp!
     l.strip!
-    id = l.split(" ")[0].to_i
-    score = l.split(" ")[1]
-    if new_nodes_hash[hashs[id]] == 1
-      new_page_rank << "#{hashs[id]},#{score}"
-    end
+    id = l.split(",")[0].to_i
+    scores << [id, l.split(",")[1]]
   end
 }
+scores.sort! { |a, b| b[1] <=> a[1] }
+scores.each do |score|
+  if new_nodes_hash[hashs[score[0]]] == 1
+    new_page_rank << "#{hashs[score[0]]},#{score[1]}"
+  end
+end
 
 # 結果をファイル出力
 if new_page_rank == nil
   puts "New page not found."
 else
-  file = File.open("./data/new_rank/hits_#{params["d"]}_#{params["t"]}.txt", "w")
+  file = File.open("./data/new_rank/bet_#{params["d"]}_#{params["t"]}.txt", "w")
   file.puts("# #{new_page_rank.size} Page")
   new_page_rank.each do |new_page|
     file.puts(new_page)

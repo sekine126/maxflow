@@ -26,14 +26,16 @@ db_name = params["d"]
 date1 = params["f"]
 date2 = params["t"]
 nodes = []
-nodes_hash = Hash.new()
 nodes1 = []
 nodes2 = []
-nodes2_hash = Hash.new()
 links = []
-links_hash = Hash.new()
 links1 = []
 links2 = []
+nodes_hash = Hash.new()
+links_hash = Hash.new()
+nodes1_hash = Hash.new()
+links1_hash = Hash.new()
+nodes2_hash = Hash.new()
 links2_hash = Hash.new()
 link_filename = "./data/crawl/#{db_name}_crawl_#{date1}.txt"
 link1_filename = "./data/crawl/#{db_name}_crawl_#{date2}.txt"
@@ -50,6 +52,7 @@ open(link_filename) {|file|
   end
 }
 nodes.uniq!
+links.uniq!
 
 # 指定した日付のフルクロールで取得したコミュニティデータ
 open(link1_filename) {|file|
@@ -57,9 +60,13 @@ open(link1_filename) {|file|
     links1 << l.chomp
     nodes1 << l.split(",")[0].to_i
     nodes1 << l.split(",")[1].to_i
+    links1_hash[l.chomp] = 1
+    nodes1_hash[l.split(",")[0].to_i] = 1
+    nodes1_hash[l.split(",")[1].to_i] = 1
   end
 }
 nodes1.uniq!
+links1.uniq!
 
 # 指定した日付の局所クロールで更新したコミュニティデータ
 open(link2_filename) {|file|
@@ -73,6 +80,7 @@ open(link2_filename) {|file|
   end
 }
 nodes2.uniq!
+links2.uniq!
 
 # それぞれのコミュニティのノード、リンク数を出力
 puts "community: #{nodes.size} nodes, #{links.size} links."
@@ -83,15 +91,17 @@ puts "community2: #{nodes2.size} nodes, #{links2.size} links."
 new_nodes1 = []
 new_nodes2 = []
 nodes1.each do |node1|
-  if nodes[node1] == nil
+  if nodes_hash[node1] == nil
     new_nodes1 << node1
   end
 end
 nodes2.each do |node2|
-  if nodes[node2] == nil
+  if nodes_hash[node2] == nil
     new_nodes2 << node2
   end
 end
+puts "new nodes1 = #{new_nodes1.size}"
+puts "new nodes2 = #{new_nodes2.size}"
 
 # コミュニティの再現率を表示
 recall_of_node = 0

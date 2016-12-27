@@ -18,14 +18,14 @@ if params["t"] == nil
   puts "Error: Please set -t date option."
   exit(1)
 end
-if params["t"] != nil && params["t"].size != 8 
+if params["t"] != nil && params["f"].size != 8 
   puts "Error: -t is date. e.g. 20150214"
   exit(1)
 end
 
-# コミュニティをファイルから取得
+# 初期コミュニティをファイルから取得
 puts "Load First community."
-data_filename = "./data/update/hits_update_#{params["d"]}_#{params["f"]}.txt"
+data_filename = "./data/crawl/#{params["d"]}_crawl_#{params["f"]}.txt"
 first_links = []
 first_nodes = []
 open(data_filename) {|file|
@@ -54,10 +54,10 @@ db_name = "#{params["d"]}_crawl"
 client = Mysql2::Client.new(:host => 'localhost', :username => 'root', :password => 'root', :database => db_name)
 
 # リンクリストをDBから取得
-links1 = []
 nodes1 = []
-links2 = []
 nodes2 = []
+links1 = []
+links2 = []
 num = 0
 seeds.each do |seed|
   num += 1
@@ -65,40 +65,48 @@ seeds.each do |seed|
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["f"]}"
   results = client.query(query)
   results.each do |row|
-    links1.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes1 << row["from_url_crc"]
-    nodes1 << row["to_url_crc"]
+    links1.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes1 << row["from_url_crc"].to_i
+    nodes1 << row["to_url_crc"].to_i
   end
   # 更新する対象のある日時のデータを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["t"]}"
   results = client.query(query)
   results.each do |row|
-    links2.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes2 << row["from_url_crc"]
-    nodes2 << row["to_url_crc"]
+    links2.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes2 << row["from_url_crc"].to_i
+    nodes2 << row["to_url_crc"].to_i
   end
 end
 nodes1.uniq!
 nodes2.uniq!
+links1.uniq!
+links2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
-# ハブ値が0以外ページの内上位8割のページを加える
-hits_filename = "./data/hits/hits_#{params["d"]}_#{params["f"]}.txt"
+# 媒介中心性が0以外ページを加える
+betweenness_filename = "./data/R/bet_#{params["d"]}_#{params["f"]}.txt"
 ids = []
 first_nodes.delete("-1")
-open(hits_filename) {|file|
+betweenness_values = []
+open(betweenness_filename) {|file|
   while l = file.gets
-    next if l[0] == "#"
     l.chomp!
     l.strip!
-    if l.split(" ")[1].to_f != 0
-      ids << l.split(" ")[0].to_i
-    end
+    betweenness_values << l.split(",")[1].to_f
   end
 }
-ids = ids[0..((ids.size*0.8) - 1).ceil]
-ids_filename = "./data/matrix/hits_ids_#{params["d"]}_#{params["f"]}.txt"
+sort_betweenness_values = betweenness_values.sort {|a, b| b <=> a }
+sort_betweenness_values.each do |sbvalue|
+  id = betweenness_values.find_index(sbvalue)
+  if sbvalue != 0
+    ids << id + 1
+  end
+  betweenness_values[id] = -1
+end
+# ids = ids[0..((ids.size*0.1) - 1).ceil]
+ids_filename = "./data/matrix/ids_#{params["d"]}_#{params["f"]}.txt"
 open(ids_filename) {|file|
   while l = file.gets
     l.chomp!
@@ -109,6 +117,7 @@ open(ids_filename) {|file|
 }
 # 重複を削除
 update_pages.uniq!
+
 # シードページのリンク先で初期データにない新しいページを加える
 update_pages.each do |upage|
   # 更新対象のページがシードページの場合
@@ -193,7 +202,7 @@ puts "Get community total #{com_nodes.size}nodes."
 puts "Get community total #{community.size}links."
 
 # 結果をファイル出力
-file = File.open("./data/update/hits_update_#{params["d"]}_#{params["t"]}.txt", "w")
+file = File.open("./data/update/bet_#{params["d"]}_#{params["f"]}_#{params["t"]}.txt", "w")
 community.each do |link|
   file.puts("#{link[0]},#{link[1]}")
 end
