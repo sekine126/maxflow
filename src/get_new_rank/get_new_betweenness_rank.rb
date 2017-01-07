@@ -76,7 +76,7 @@ end
 new_nodes.uniq!
 puts "nodes1 = #{nodes1.size}, nodes2 = #{nodes2.size}, new node = #{new_nodes.size}"
 
-# ハブスコアランキングファイルから新しく追加されたページだけを抽出
+# スコアランキングファイルから新しく追加されたページだけを抽出
 bet_filename = "./data/R/bet_#{params["d"]}_#{params["t"]}.txt"
 ids_filename = "./data/matrix/bet_ids_#{params["d"]}_#{params["t"]}.txt"
 new_page_rank = []
@@ -97,9 +97,9 @@ open(bet_filename) {|file|
   end
 }
 scores.sort! { |a, b| b[1] <=> a[1] }
-scores.each do |score|
+scores.each_with_index do |score, rank|
   if new_nodes_hash[hashs[score[0]]] == 1
-    new_page_rank << "#{hashs[score[0]]},#{score[1]}"
+    new_page_rank << "#{hashs[score[0]]},#{score[1]},#{rank+1}"
   end
 end
 

@@ -61,6 +61,9 @@ links2 = []
 num = 0
 seeds.each do |seed|
   num += 1
+  if db_name == "koike_crawl" && num == 3
+    num += 1
+  end
   # 初期データを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["f"]}"
   results = client.query(query)
@@ -85,7 +88,7 @@ links2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
-# ハブ値が0以外のページを加える
+# ハブ値でランキング付けしてWebコミュニティの上位2割を取得する
 hits_filename = "./data/hits/hits_#{params["d"]}_#{params["f"]}.txt"
 ids = []
 first_nodes.delete("-1")
@@ -94,11 +97,10 @@ open(hits_filename) {|file|
     next if l[0] == "#"
     l.chomp!
     l.strip!
-    if l.split(" ")[1].to_f != 0
-      ids << l.split(" ")[0].to_i
-    end
+    ids << l.split(" ")[0].to_i
   end
 }
+ids = ids[0..((ids.size*0.2) - 1).ceil]
 ids_filename = "./data/matrix/ids_#{params["d"]}_#{params["f"]}.txt"
 open(ids_filename) {|file|
   while l = file.gets

@@ -61,6 +61,9 @@ links2 = []
 num = 0
 seeds.each do |seed|
   num += 1
+  if db_name == "koike_crawl" && num == 3
+    num += 1
+  end
   # 初期データを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["f"]}"
   results = client.query(query)
@@ -85,7 +88,7 @@ links2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
-# 媒介中心性が0以外ページを加える
+# 媒介中心性でランキング付けしてWebコミュニティの上位2割を取得する
 betweenness_filename = "./data/R/bet_#{params["d"]}_#{params["f"]}.txt"
 ids = []
 first_nodes.delete("-1")
@@ -100,12 +103,10 @@ open(betweenness_filename) {|file|
 sort_betweenness_values = betweenness_values.sort {|a, b| b <=> a }
 sort_betweenness_values.each do |sbvalue|
   id = betweenness_values.find_index(sbvalue)
-  if sbvalue != 0
-    ids << id + 1
-  end
+  ids << id + 1
   betweenness_values[id] = -1
 end
-# ids = ids[0..((ids.size*0.1) - 1).ceil]
+ids = ids[0..((ids.size*0.2) - 1).ceil]
 ids_filename = "./data/matrix/ids_#{params["d"]}_#{params["f"]}.txt"
 open(ids_filename) {|file|
   while l = file.gets

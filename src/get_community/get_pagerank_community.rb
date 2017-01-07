@@ -25,7 +25,7 @@ end
 
 # 初期コミュニティをファイルから取得
 puts "Load First community."
-data_filename = "./data/#{params["d"]}_crawl_#{params["f"]}.txt"
+data_filename = "./data/crawl/#{params["d"]}_crawl_#{params["f"]}.txt"
 first_links = []
 first_nodes = []
 open(data_filename) {|file|
@@ -61,33 +61,35 @@ nodes2 = []
 num = 0
 seeds.each do |seed|
   num += 1
-  if db_name == "ichiro_crawl" && num == 2
+  if db_name == "koike_crawl" && num == 3
     num += 1
   end
   # 初期データを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["f"]}"
   results = client.query(query)
   results.each do |row|
-    links1.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes1 << row["from_url_crc"]
-    nodes1 << row["to_url_crc"]
+    links1.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes1 << row["from_url_crc"].to_i
+    nodes1 << row["to_url_crc"].to_i
   end
   # 更新する対象のある日時のデータを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["t"]}"
   results = client.query(query)
   results.each do |row|
-    links2.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes2 << row["from_url_crc"]
-    nodes2 << row["to_url_crc"]
+    links2.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes2 << row["from_url_crc"].to_i
+    nodes2 << row["to_url_crc"].to_i
   end
 end
 nodes1.uniq!
 nodes2.uniq!
+links1.uniq!
+links2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
-# Pagerankが上位8％のページを加える
-pagerank_filename = "./R/pagerank_#{params["d"]}_#{params["f"]}.txt"
+# Pagerankでランキング付してWebコミュニティの上位2割を取得する
+pagerank_filename = "./data/R/prank_#{params["d"]}_#{params["f"]}.txt"
 ids = []
 first_nodes.delete("-1")
 pagerank_values = []
@@ -101,13 +103,11 @@ open(pagerank_filename) {|file|
 sort_pagerank_values = pagerank_values.sort {|a, b| b <=> a }
 sort_pagerank_values.each do |sbvalue|
   id = pagerank_values.find_index(sbvalue)
-  if sbvalue != 0
-    ids << id + 1
-  end
+  ids << id + 1
   pagerank_values[id] = -1
 end
-ids = ids[0..((ids.size*0.08) - 1).ceil]
-ids_filename = "./matrix/ids_#{params["d"]}_#{params["f"]}.txt"
+ids = ids[0..((ids.size*0.2) - 1).ceil]
+ids_filename = "./data/matrix/ids_#{params["d"]}_#{params["f"]}.txt"
 open(ids_filename) {|file|
   while l = file.gets
     l.chomp!
@@ -203,7 +203,7 @@ puts "Get community total #{com_nodes.size}nodes."
 puts "Get community total #{community.size}links."
 
 # 結果をファイル出力
-file = File.open("./update/pagerank_#{params["d"]}_#{params["f"]}_#{params["t"]}.txt", "w")
+file = File.open("./data/update/prank_#{params["d"]}_#{params["f"]}_#{params["t"]}.txt", "w")
 community.each do |link|
   file.puts("#{link[0]},#{link[1]}")
 end

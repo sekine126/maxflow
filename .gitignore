@@ -1,1 +1,7 @@
 .DS_Store
+.bundle/*
+Gemfile.lock
+data/*
+*.sh
+vendor/*
+.gitignore

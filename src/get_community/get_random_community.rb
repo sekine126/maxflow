@@ -25,7 +25,7 @@ end
 
 # 初期コミュニティをファイルから取得
 puts "Load First community."
-data_filename = "./data/#{params["d"]}_crawl_#{params["f"]}.txt"
+data_filename = "./data/crawl/#{params["d"]}_crawl_#{params["f"]}.txt"
 first_links = []
 first_nodes = []
 open(data_filename) {|file|
@@ -54,53 +54,46 @@ db_name = "#{params["d"]}_crawl"
 client = Mysql2::Client.new(:host => 'localhost', :username => 'root', :password => 'root', :database => db_name)
 
 # リンクリストをDBから取得
-links1 = []
 nodes1 = []
-links2 = []
 nodes2 = []
+links1 = []
+links2 = []
 num = 0
 seeds.each do |seed|
   num += 1
-  if db_name == "ichiro_crawl" && num == 2
+  if db_name == "koike_crawl" && num == 3
     num += 1
   end
   # 初期データを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["f"]}"
   results = client.query(query)
   results.each do |row|
-    links1.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes1 << row["from_url_crc"]
-    nodes1 << row["to_url_crc"]
+    links1.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes1 << row["from_url_crc"].to_i
+    nodes1 << row["to_url_crc"].to_i
   end
   # 更新する対象のある日時のデータを取得
   query = "select from_url_crc, to_url_crc from link#{num}_#{params["t"]}"
   results = client.query(query)
   results.each do |row|
-    links2.push([row["from_url_crc"], row["to_url_crc"]])
-    nodes2 << row["from_url_crc"]
-    nodes2 << row["to_url_crc"]
+    links2.push([row["from_url_crc"].to_i, row["to_url_crc"].to_i])
+    nodes2 << row["from_url_crc"].to_i
+    nodes2 << row["to_url_crc"].to_i
   end
 end
 nodes1.uniq!
 nodes2.uniq!
+links1.uniq!
+links2.uniq!
 
 # 更新対象のページリストを作成
 update_pages = []
-# 初期コミュニティ内の出リンク数が多いページを加える
-first_nodes.each do |fnode|
-  count = 0
-  first_links.each do |flink|
-    if flink.split(",")[0] == fnode
-      count += 1
-    end
-  end
-  # 出リンクが2以上の場合
-  if count > 1 && !(update_pages.include?(fnode)) && fnode != "-1"
-    update_pages << fnode.to_i
-  end
-end
+# Webコミュニティ内からランダムに2割を取得する
+update_pages = first_nodes.sample((first_nodes.size*0.2).to_i)
+
 # 重複を削除
 update_pages.uniq!
+
 # シードページのリンク先で初期データにない新しいページを加える
 update_pages.each do |upage|
   # 更新対象のページがシードページの場合
@@ -179,14 +172,13 @@ end
 com_nodes.uniq!
 
 # 結果を画面表示
-#pp community
 puts "Total #{num_nodes}node."
 puts "Total #{updated_links.size} links"
 puts "Get community total #{com_nodes.size}nodes."
 puts "Get community total #{community.size}links."
 
 # 結果をファイル出力
-file = File.open("./update/#{params["d"]}_#{params["f"]}_#{params["t"]}.txt", "w")
+file = File.open("./data/update/ran_#{params["d"]}_#{params["f"]}_#{params["t"]}.txt", "w")
 community.each do |link|
   file.puts("#{link[0]},#{link[1]}")
 end
