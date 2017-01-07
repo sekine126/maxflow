@@ -101,7 +101,7 @@ nodes2.each do |node2|
   end
 end
 puts "new nodes1 = #{new_nodes1.size}"
-puts "new nodes1 = #{new_nodes1.size}"
+puts "new nodes2 = #{new_nodes2.size}"
 
 # コミュニティの再現率を表示
 recall_of_node = 0
@@ -125,9 +125,9 @@ puts "Community Link Recall #{(recall_of_link/links1.size.to_f*100).round(2)} %"
 recall_nodes = []
 add_nodes = []
 new_nodes1.each do |nnode1|
-    if new_nodes2.include?(nnode1)
-          recall_nodes << nnode1
-            end
+  if new_nodes2.include?(nnode1)
+    recall_nodes << nnode1
+  end
 end
 puts "New node Recall #{recall_nodes.size} nodes."
 puts "New node Recall #{(recall_nodes.size/new_nodes1.size.to_f*100).round(2)} %"

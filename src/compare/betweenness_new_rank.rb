@@ -90,7 +90,7 @@ open(ids_filename) {|file|
 file = File.open("./data/compare/bet_#{db_name}_#{params["f"]}_#{params["t"]}.txt", "w")
 file.puts "# #{ex_nodes.size} Page"
 ex_nodes.each do |ex_node|
-    file.puts"#{ex_node},#{scores2[ex_node] - scores1[ex_node]}:#{hashs[ex_node]}"
+  file.puts"#{ex_node},#{scores2[ex_node] - scores1[ex_node]}:#{hashs[ex_node]}"
 end
 file.close
 
