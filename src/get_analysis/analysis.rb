@@ -109,36 +109,36 @@ class Analysis
   # hashs1: 正解クラスタデータ
   # hashs2: 対象クラスタデータ
   def get_recall(hashs1, hashs2)
-    r_nodes = []
+    nodes = []
     hashs1.each do |key1, value1|
       if hashs2[key1] == 1
-        r_nodes << key1
+        nodes << key1
       end
     end
-    recall = (r_nodes.size/hashs1.size.to_f*100).round(2)
+    recall = (nodes.size/hashs1.size.to_f*100).round(2)
   end
 
   # 適合率を取得するメソッド
   # hashs1: 正解クラスタデータ
   # hashs2: 対象クラスタデータ
   def get_precision(hashs1, hashs2)
-    p_nodes = []
+    nodes = []
     hashs1.each do |key1, value1|
       if hashs2[key1] == 1
-        p_nodes << key1
+        nodes << key1
       end
     end
-    recall = (p_nodes.size/hashs2.size.to_f*100).round(2)
+    precision = (nodes.size/hashs2.size.to_f*100).round(2)
   end
 
   # 初期コミュニティから追加されたページを取得するメソッド
   # hashs1: 初期コミュニティデータ
   # hashs2: X日後コミュニティデータ
   def get_add_hashs(hashs1,hashs2)
-    hashs = []
+    hashs = Hash.new()
     hashs2.each do |key2, value2|
       if hashs1[key2] == nil
-        hashs << key2
+        hashs[key2] = 1
       end
     end
     hashs
@@ -148,10 +148,10 @@ class Analysis
   # hashs1: 初期コミュニティデータ
   # hashs2: X日後コミュニティデータ
   def get_drop_hashs(hashs1,hashs2)
-    hashs = []
+    hashs = Hash.new()
     hashs1.each do |key1, value1|
       if hashs2[key1] == nil
-        hashs << key1
+        hashs[key1] = 1
       end
     end
     hashs
@@ -161,15 +161,15 @@ class Analysis
   # hashs1: 初期コミュニティデータ
   # hashs2: X日後コミュニティデータ
   def get_cha_hashs(hashs1,hashs2)
-    hashs = []
+    hashs = Hash.new()
     hashs1.each do |key1, value1|
       if hashs2[key1] == nil
-        hashs << key1
+        hashs[key1] = 1
       end
     end
     hashs2.each do |key2, value2|
       if hashs1[key2] == nil
-        hashs << key2
+        hashs[key2] = 1
       end
     end
     hashs
