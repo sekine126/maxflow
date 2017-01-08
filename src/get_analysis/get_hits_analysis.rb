@@ -3,7 +3,7 @@
 # -d データベースネーム
 # -f 日付1
 # -t 日付2
-require "./src/get_analysys/analysis.rb"
+require "./src/get_analysis/analysis.rb"
 
 params = ARGV.getopts('d:f:t:')
 if params["d"] == nil
