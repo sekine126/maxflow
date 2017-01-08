@@ -38,17 +38,13 @@ class Analysis
   end
 
   # フルクロールコミュニティの減少数を取得
-  def get_addition_num1
+  def get_drop_num1
     drop_num = @drop_hashs1.size
   end
 
   # 局所クロールコミュニティの減少数を取得
   def get_drop_num2
     drop_num = @drop_hashs2.size
-  end
-
-  # 減少数を取得
-  def get_drop_num
   end
 
   # 増加分再現率を取得
