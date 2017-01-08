@@ -22,11 +22,6 @@ class Analysis
     @cha_hashs2 = get_cha_hashs(@hashs,@hashs2)
   end
 
-  # コミュニティ再現率を取得
-  def get_community_recall
-    recall = get_recall(@hashs1, @hashs2)
-  end
-
   # フルクロールコミュニティの増加数を取得
   def get_addition_num1
     addition_num = @add_hashs1.size
@@ -45,6 +40,11 @@ class Analysis
   # 局所クロールコミュニティの減少数を取得
   def get_drop_num2
     drop_num = @drop_hashs2.size
+  end
+
+  # コミュニティ再現率を取得
+  def get_community_recall
+    recall = get_recall(@hashs1, @hashs2)
   end
 
   # 増加分再現率を取得

@@ -40,6 +40,22 @@ filepath2 = "./data/update/prank_#{db_name}_#{date1}_#{date2}.txt"
 # 解析クラスのインスタンスメソッドを作成
 analysis = Analysis.new(filepath, filepath1, filepath2)
 
+# フルクロールコミュニティの増加数を表示
+addition_num1 = analysis.get_addition_num1
+puts "Full Crawl Community addition #{addition_num1} page"
+
+# フルクロールコミュニティの減少数を表示
+drop_num1 = analysis.get_drop_num1
+puts "Full Crawl Community drop #{drop_num1} page"
+
+# 局所クロールコミュニティの増加数を表示
+addition_num2 = analysis.get_addition_num2
+puts "Focused Crawl Community addition #{addition_num2} page"
+
+# 局所クロールコミュニティの増加数を表示
+drop_num2 = analysis.get_drop_num2
+puts "Focused Crawl Community drop #{drop_num2} page"
+
 # コミュニティ再現率を表示
 community_recall = analysis.get_community_recall()
 puts "Community Recall #{community_recall} %"
