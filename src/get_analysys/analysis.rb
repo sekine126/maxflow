@@ -91,7 +91,7 @@ class Analysis
   def get_recall(hashs1, hashs2)
     r_nodes = []
     hashs1.each do |key1, value1|
-      if nodes2_hash[key1] == 1
+      if hashs2[key1] == 1
         r_nodes << key1
       end
     end
@@ -104,7 +104,7 @@ class Analysis
   def get_precision(hashs1, hashs2)
     p_nodes = []
     hashs1.each do |key1, value1|
-      if nodes2_hash[key1] == 1
+      if hash2[key1] == 1
         p_nodes << key1
       end
     end
