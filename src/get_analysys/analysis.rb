@@ -14,12 +14,12 @@ class Analysis
     @hashs = get_hashs(@com_filepath)
     @hashs1 = get_hashs(@com1_filepath)
     @hashs2 = get_hashs(@com2_filepath)
-    @add_hashs1 = get_add_hashs1(@hashs,@hashs1)
-    @add_hashs2 = get_add_hashs2(@hashs,@hashs2)
-    @drop_hashs1 = get_drop_hashs1(@hashs,@hashs1)
-    @drop_hashs2 = get_drop_hashs2(@hashs,@hashs2)
-    @cha_hashs1 = get_cha_hashs1(@hashs,@hashs1)
-    @cha_hashs2 = get_cha_hashs2(@hashs,@hashs2)
+    @add_hashs1 = get_add_hashs(@hashs,@hashs1)
+    @add_hashs2 = get_add_hashs(@hashs,@hashs2)
+    @drop_hashs1 = get_drop_hashs(@hashs,@hashs1)
+    @drop_hashs2 = get_drop_hashs(@hashs,@hashs2)
+    @cha_hashs1 = get_cha_hashs(@hashs,@hashs1)
+    @cha_hashs2 = get_cha_hashs(@hashs,@hashs2)
   end
 
   # コミュニティ再現率を取得
