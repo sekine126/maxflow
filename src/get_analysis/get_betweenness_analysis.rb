@@ -64,10 +64,6 @@ puts "Community Recall #{community_recall} %"
 community_precision = analysis.get_community_precision()
 puts "Community Precision #{community_precision} %"
 
-# コミュニティF値を表示
-community_f = analysis.get_f(community_recall, community_precision)
-puts "Community F #{community_f}"
-
 # 増加分再現率を表示
 addition_recall = analysis.get_addition_recall
 puts "Addition Recall #{addition_recall} %"
@@ -75,10 +71,6 @@ puts "Addition Recall #{addition_recall} %"
 # 増加分適合率を表示
 addition_precision = analysis.get_addition_precision
 puts "Addition Precision #{addition_precision} %"
-
-# 増加分F値を表示
-addition_f = analysis.get_f(addition_recall, addition_precision)
-puts "Addition F #{addition_f}"
 
 # 減少分再現率を表示
 drop_recall = analysis.get_drop_recall
@@ -88,10 +80,6 @@ puts "Drop Recall #{drop_recall} %"
 drop_precision = analysis.get_drop_precision
 puts "Drop Precision #{drop_precision} %"
 
-# 減少分F値を表示
-drop_f = analysis.get_f(drop_recall, drop_precision)
-puts "Drop F #{drop_f}"
-
 # 変化分再現率を表示
 change_recall = analysis.get_change_recall
 puts "Change Recall #{change_recall} %"
@@ -100,6 +88,3 @@ puts "Change Recall #{change_recall} %"
 change_precision = analysis.get_change_precision
 puts "Change Precision #{change_precision} %"
 
-# 変化分F値を表示
-change_f = analysis.get_f(change_recall, change_precision)
-puts "Change F #{change_f}"
