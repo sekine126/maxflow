@@ -27,6 +27,30 @@ class Analysis
     recall = get_recall(@hashs1, @hashs2)
   end
 
+  # フルクロールコミュニティの増加数を取得
+  def get_addition_num1
+    addition_num = @add_hashs1.size
+  end
+
+  # 局所クロールコミュニティの増加数を取得
+  def get_addition_num2
+    addition_num = @add_hashs2.size
+  end
+
+  # フルクロールコミュニティの減少数を取得
+  def get_addition_num1
+    drop_num = @drop_hashs1.size
+  end
+
+  # 局所クロールコミュニティの減少数を取得
+  def get_drop_num2
+    drop_num = @drop_hashs2.size
+  end
+
+  # 減少数を取得
+  def get_drop_num
+  end
+
   # 増加分再現率を取得
   def get_addition_recall
     recall = get_recall(@add_hashs1, @add_hashs2)
