@@ -40,29 +40,29 @@ filepath2 = "./data/update/ran_#{db_name}_#{date1}_#{date2}.txt"
 # 解析クラスのインスタンスメソッドを作成
 analysis = Analysis.new(filepath, filepath1, filepath2)
 
-# フルクロールコミュニティの増加数を表示
-addition_num1 = analysis.get_addition_num1
-puts "Full Crawl Community addition #{addition_num1} page"
-
-# フルクロールコミュニティの減少数を表示
-drop_num1 = analysis.get_drop_num1
-puts "Full Crawl Community drop #{drop_num1} page"
-
-# 局所クロールコミュニティの増加数を表示
-addition_num2 = analysis.get_addition_num2
-puts "Focused Crawl Community addition #{addition_num2} page"
-
-# 局所クロールコミュニティの増加数を表示
-drop_num2 = analysis.get_drop_num2
-puts "Focused Crawl Community drop #{drop_num2} page"
-
-# コミュニティ再現率を表示
-community_recall = analysis.get_community_recall()
-puts "Community Recall #{community_recall} %"
-
-# コミュニティ適合率を表示
-community_precision = analysis.get_community_precision()
-puts "Community Precision #{community_precision} %"
+## フルクロールコミュニティの増加数を表示
+#addition_num1 = analysis.get_addition_num1
+#puts "Full Crawl Community addition #{addition_num1} page"
+#
+## フルクロールコミュニティの減少数を表示
+#drop_num1 = analysis.get_drop_num1
+#puts "Full Crawl Community drop #{drop_num1} page"
+#
+## 局所クロールコミュニティの増加数を表示
+#addition_num2 = analysis.get_addition_num2
+#puts "Focused Crawl Community addition #{addition_num2} page"
+#
+## 局所クロールコミュニティの増加数を表示
+#drop_num2 = analysis.get_drop_num2
+#puts "Focused Crawl Community drop #{drop_num2} page"
+#
+## コミュニティ再現率を表示
+#community_recall = analysis.get_community_recall()
+#puts "Community Recall #{community_recall} %"
+#
+## コミュニティ適合率を表示
+#community_precision = analysis.get_community_precision()
+#puts "Community Precision #{community_precision} %"
 
 # 増加分再現率を表示
 addition_recall = analysis.get_addition_recall
@@ -80,10 +80,10 @@ puts "Drop Recall #{drop_recall} %"
 drop_precision = analysis.get_drop_precision
 puts "Drop Precision #{drop_precision} %"
 
-# 変化分再現率を表示
-change_recall = analysis.get_change_recall
-puts "Change Recall #{change_recall} %"
-
-# 変化分適合率を表示
-change_precision = analysis.get_change_precision
-puts "Change Precision #{change_precision} %"
+## 変化分再現率を表示
+#change_recall = analysis.get_change_recall
+#puts "Change Recall #{change_recall} %"
+#
+## 変化分適合率を表示
+#change_precision = analysis.get_change_precision
+#puts "Change Precision #{change_precision} %"
